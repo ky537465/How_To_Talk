@@ -6,6 +6,8 @@ import pandas as pd
 from base_listener import BaseListener
 from configuration import ALL_STATES, ALL_REWARDS
 
+import hashlib
+
 
 class PragmaticListener(BaseListener):
 
@@ -24,19 +26,29 @@ class PragmaticListener(BaseListener):
             return self.single_horizon_inference(utt, context, horizon)
 
     def single_horizon_inference(self, utt, context, horizon):
-
-        context_str = self._get_cache_key(utt, context, horizon)
-        file_path = "data/cached_inference/" + context_str + ".parquet"
+        cache_key = self._get_cache_key(utt, context, horizon)
+        
+        hash_name = hashlib.md5(cache_key.encode()).hexdigest()
+        file_path = "data/cached_inference/" + hash_name + ".parquet"
 
         try:
             df = pd.read_parquet(file_path)
-        except FileNotFoundError:
+        except (FileNotFoundError, OSError):
             df = self._regenerate_posterior_beliefs_from_utterance(utt, context, horizon)
+            import os
+            os.makedirs("data/cached_inference/", exist_ok=True)
             df.to_parquet(file_path)
 
         normalizing_constant = df.likelihoods.sum()
-        df["probability"] = df.likelihoods / normalizing_constant
+        if normalizing_constant >= 1e-12:
+            df["probability"] = df.likelihoods / normalizing_constant
         return df
+    
+    def _get_cache_key(self, utt, context, horizon, alphaL=None):
+        cache_str = "H:{}-C:{}-U:{}-{}".format(horizon, context, utt, self.speaker)
+        if alphaL is not None:
+            cache_str += str(alphaL)
+        return cache_str
 
     def multihorizon_inference(self, utt, context, horizons):
 
@@ -67,7 +79,7 @@ class PragmaticListener(BaseListener):
     def point_estimate_from_posterior(self, posterior_belief_df):
 
         point_estimate = posterior_belief_df.multiply(posterior_belief_df["probability"], axis='index').apply(np.sum)
-        point_estimate = point_estimate.reindex(["green", "circle", "red", "triangle", "square", "blue"])
+        point_estimate = point_estimate.reindex(["green", "spotted", "red", "striped", "plain", "blue"])
 
         return point_estimate
 

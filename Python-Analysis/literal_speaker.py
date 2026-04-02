@@ -1,5 +1,5 @@
 from scipy.special import softmax
-from configuration import TRUE_REWARDS, UTTERANCES
+from configuration import TRUE_REWARDS, UTTERANCES, utt_to_string
 
 
 class LiteralSpeaker(object):
@@ -53,9 +53,14 @@ class LiteralSpeaker(object):
         return softmax([r * self.alphaS for r in utterance_rewards])
 
     def single_utterance_probability(self, utt, context, horizon=1, reward_weights=None):
-
         utterances = UTTERANCES[self.utterances]
-
         probabilities = self.all_utterance_probabilities(context, horizon=horizon, reward_weights=reward_weights)
 
-        return probabilities[utterances.index(utt)]
+        target_utt_str = utt_to_string(utt)
+        all_utt_strs = [utt_to_string(u) for u in utterances]
+
+        try:
+            idx = all_utt_strs.index(target_utt_str)
+            return probabilities[idx]
+        except ValueError:
+            return 1e-10

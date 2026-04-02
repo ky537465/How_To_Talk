@@ -1,4 +1,5 @@
 import random
+import re
 
 from multivariate_normal import MultivariateNormal
 from scipy.stats import norm
@@ -184,6 +185,13 @@ class LearnerAgent(object):
             self.update_beliefs(chosen_action)
 
         return pd.DataFrame(expected_value_beliefs)
+    
+    @staticmethod
+    def _get_safe_path(cache_str):
+        """Helper to sanitize filenames for Windows and handle path limits."""
+        clean_str = re.sub(r'[:\(\)\[\]]', '-', cache_str)
+        clean_str = re.sub(r'-+', '-', clean_str).strip('-')
+        return f"data/cached_thompson_sampling/{clean_str}.parquet"
 
     @classmethod
     def cache_pragmatic_thompson_sampling(cls, pragmatic_listener, utterance, state, horizons, prior_var=3, workerid=None,
@@ -196,9 +204,9 @@ class LearnerAgent(object):
         thompson_sampling_str = f'h:{n_trials},samples:{min_importance_samples},var:{prior_var}'
 
         cache_str = f'U:{utt_to_string(utterance)}-C:({context_str})-H:{horizons}-T:({thompson_sampling_str})-S:({pragmatic_listener.speaker})'
-
         cache_str += unique_str
-        file_path = "data/cached_thompson_sampling/" + cache_str + ".parquet"
+
+        file_path = cls._get_safe_path(cache_str)
 
         try:
             df = pd.read_parquet(file_path)
