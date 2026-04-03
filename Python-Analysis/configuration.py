@@ -2,7 +2,7 @@ import itertools
 
 ##### Define features and actions
 COLORS = ["red", "green", "blue"]
-SHAPES = ["plain", "spotted", "striped"]
+SHAPES = ["spotted", "plain", "striped"]
 FEATURES = COLORS + SHAPES
 ACTIONS = [{"color": action[0], "shape": action[1]} for action in itertools.product(COLORS, SHAPES)]
 
@@ -24,16 +24,17 @@ def generate_worlds_from_feature_values(features, possible_values):
 
     return worlds_list
 
+# circle = plain, triangle = striped, square = spotted
 
 ALL_REWARDS = generate_worlds_from_feature_values(SHAPES+COLORS, range(-2, 3))
-TRUE_REWARDS = {"green": 2, "red": 0,  "blue": -2, "spotted": 1, "striped": 0, "plain": -1}
+TRUE_REWARDS = {"green": 2, "red": 0,  "blue": -2, "plain": 1, "striped": 0, "spotted": -1}
 
 ##### Define utterances
 DESCRIPTIONS = [{"type": "description", "feature": utt[0], "value": utt[1]}
                 for utt in itertools.product(FEATURES, range(-2, 3))]
 
 EXP_DESCRIPTIONS = [{"type": "description", "feature": utt[0], "value": utt[1]}
-                    for utt in itertools.product(["green", "spotted", "plain", "blue"], [-2, -1, 1, 2])]
+                    for utt in itertools.product(["green", "plain", "spotted", "blue"], [-2, -1, 1, 2])]
 
 
 def generateInstructions(state):
@@ -61,7 +62,7 @@ ALL_UTTERANCES = DESCRIPTIONS + INSTRUCTIONS
 EXP_UTTERANCES = EXP_DESCRIPTIONS + INSTRUCTIONS
 
 UTTERANCES = {"all": ALL_UTTERANCES,
-              "exp": EXP_UTTERANCES,
+              "exp": ALL_UTTERANCES,
               "instructions": INSTRUCTIONS,
               "descriptions": DESCRIPTIONS}
 
