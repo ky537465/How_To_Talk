@@ -20,7 +20,7 @@ def visualize_pragmatic_beliefs(belief_df, vmax=.5, cmap='Oranges'):
 def visualize_utt_distribution(prob_df, vmax=.5, cmap='Oranges'):
     collapsed_probs = prob_df.pivot("value", "feature", "prob")
 
-    features_in_descending_order = ["green", "circle", "red", "triangle", "square", "blue"]
+    features_in_descending_order = ["green", "plain", "red", "striped", "spotted", "blue"]
     reward_probs = collapsed_probs.reindex(features_in_descending_order, axis=1)
 
     ax = sns.heatmap(reward_probs, fmt='', linewidths=.5, cmap=cmap, vmin=0, vmax=vmax)
@@ -49,7 +49,7 @@ def plot_horizon_estimate(posterior_df, include_text=True, include_ticks=True):
 def plot_point_estimate(point_estimate, color='gray', alpha=1, include_text=True):
     plt.figure(figsize=(8, 4))
 
-    point_estimate = point_estimate[["green", "red", "blue", "circle", "triangle", "square"]]
+    point_estimate = point_estimate[["green", "red", "blue", "plain", "striped", "spotted"]]
 
     point_estimate.plot(kind='bar', color=color, alpha=alpha)
 

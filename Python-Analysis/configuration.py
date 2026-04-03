@@ -62,7 +62,7 @@ ALL_UTTERANCES = DESCRIPTIONS + INSTRUCTIONS
 EXP_UTTERANCES = EXP_DESCRIPTIONS + INSTRUCTIONS
 
 UTTERANCES = {"all": ALL_UTTERANCES,
-              "exp": EXP_UTTERANCES,
+              "exp": ALL_UTTERANCES,
               "instructions": INSTRUCTIONS,
               "descriptions": DESCRIPTIONS}
 
