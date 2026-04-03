@@ -2,6 +2,7 @@ from collections import defaultdict, Counter
 
 import numpy as np
 import pandas as pd
+import re
 
 from base_listener import BaseListener
 from configuration import ALL_STATES, ALL_REWARDS
@@ -26,7 +27,8 @@ class PragmaticListener(BaseListener):
     def single_horizon_inference(self, utt, context, horizon):
 
         context_str = self._get_cache_key(utt, context, horizon)
-        file_path = "data/cached_inference/" + context_str + ".parquet"
+        clean_str = re.sub(r'[^a-zA-Z0-9._]+', '-', context_str)
+        file_path = "data/cached_inference/" + clean_str + ".parquet"
 
         try:
             df = pd.read_parquet(file_path)
@@ -67,7 +69,7 @@ class PragmaticListener(BaseListener):
     def point_estimate_from_posterior(self, posterior_belief_df):
 
         point_estimate = posterior_belief_df.multiply(posterior_belief_df["probability"], axis='index').apply(np.sum)
-        point_estimate = point_estimate.reindex(["green", "circle", "red", "triangle", "square", "blue"])
+        point_estimate = point_estimate.reindex(["green", "plain", "red", "striped", "spotted", "blue"])
 
         return point_estimate
 

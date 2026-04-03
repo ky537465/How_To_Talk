@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 import math
 import time
+import re
 
 
 class LearnerAgent(object):
@@ -198,7 +199,8 @@ class LearnerAgent(object):
         cache_str = f'U:{utt_to_string(utterance)}-C:({context_str})-H:{horizons}-T:({thompson_sampling_str})-S:({pragmatic_listener.speaker})'
 
         cache_str += unique_str
-        file_path = "data/cached_thompson_sampling/" + cache_str + ".parquet"
+        clean_str = re.sub(r'[^a-zA-Z0-9._]+', '-', cache_str)
+        file_path = "data/cached_thompson_sampling/" + clean_str + ".parquet"
 
         try:
             df = pd.read_parquet(file_path)
@@ -250,7 +252,8 @@ class LearnerAgent(object):
         thompson_sampling_str = f'h:{n_trials},samples:{min_importance_samples},var:{prior_var}'
         cache_str = f'U:{utt_to_string(utterance)}-T:({thompson_sampling_str})-v3'
         cache_str += unique_str
-        file_path = "data/cached_thompson_sampling/" + cache_str + ".parquet"
+        clean_str = re.sub(r'[^a-zA-Z0-9._]+', '-', cache_str)
+        file_path = "data/cached_thompson_sampling/" + clean_str + ".parquet"
 
         try:
             df = pd.read_parquet(file_path)
@@ -294,7 +297,8 @@ class LearnerAgent(object):
         thompson_sampling_str = f'h:{n_trials},var:{prior_var}'
         cache_str = f'individual-T:({thompson_sampling_str})'
         cache_str += unique_str
-        file_path = "data/cached_thompson_sampling/" + cache_str + ".parquet"
+        clean_str = re.sub(r'[^a-zA-Z0-9._]+', '-', cache_str)
+        file_path = "data/cached_thompson_sampling/" + clean_str + ".parquet"
 
         try:
             df = pd.read_parquet(file_path)
