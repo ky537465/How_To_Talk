@@ -7,6 +7,8 @@ import re
 from base_listener import BaseListener
 from configuration import ALL_STATES, ALL_REWARDS
 
+import hashlib
+
 
 class PragmaticListener(BaseListener):
 
@@ -32,13 +34,22 @@ class PragmaticListener(BaseListener):
 
         try:
             df = pd.read_parquet(file_path)
-        except FileNotFoundError:
+        except (FileNotFoundError, OSError):
             df = self._regenerate_posterior_beliefs_from_utterance(utt, context, horizon)
+            import os
+            os.makedirs("data/cached_inference/", exist_ok=True)
             df.to_parquet(file_path)
 
         normalizing_constant = df.likelihoods.sum()
-        df["probability"] = df.likelihoods / normalizing_constant
+        if normalizing_constant >= 1e-12:
+            df["probability"] = df.likelihoods / normalizing_constant
         return df
+    
+    def _get_cache_key(self, utt, context, horizon, alphaL=None):
+        cache_str = "H:{}-C:{}-U:{}-{}".format(horizon, context, utt, self.speaker)
+        if alphaL is not None:
+            cache_str += str(alphaL)
+        return cache_str
 
     def multihorizon_inference(self, utt, context, horizons):
 
